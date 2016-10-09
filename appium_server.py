@@ -1,15 +1,18 @@
 # coding=utf-8
 import datetime
+import getopt
 import logging
 import os
 import shlex
 import subprocess
+import sys
 import time
 from logging.handlers import RotatingFileHandler
 
 import flask
 from flask import Flask, request
 from flask_restful import Api, Resource
+from redislog.tdummy.handlers import LogstashRedisHandler
 
 app = Flask(__name__)
 api = Api(app)
@@ -179,15 +182,35 @@ def abort(code, message=None):
         return flask.abort(code)
 
 
-def config_log():
+def config_log(production_env=False):
     """
     配置日志文件
+    :param production_env 是否是生产环境,如果是生产环境那么需要将日志写入到ELK中
     :return:
     """
-    base_dir = os.path.dirname(__file__)
-    handler = RotatingFileHandler(os.path.join(base_dir, 'logs/app.log'), maxBytes=10000000, backupCount=1)
-    handler.setLevel(logging.INFO)
-    app.logger.addHandler(handler)
+    if not production_env:
+        base_dir = os.path.dirname(__file__)
+        handler = RotatingFileHandler(os.path.join(base_dir, 'logs/app.log'), maxBytes=10000000, backupCount=1)
+        handler.setLevel(logging.INFO)
+        app.logger.addHandler(handler)
+    else:
+        handler = LogstashRedisHandler(level=logging.INFO, is_interface_handler=False, key='LOGSTASH_APP_LOG',
+                                       host='192.168.65.224', app_module='appium_server')
+        app.logger.addHandler(handler)
+
+
+def parse_system_argv():
+    """
+    解析命令行参数
+    :return:
+    """
+    opts, _ = getopt.getopt(sys.argv[1:], '', ["production="])
+    production = False
+    for opt, value in opts:
+        if opt == '--production':
+            production = value.lower() == 'true'
+
+    return {'production': production}
 
 
 api.add_resource(AppiumServer, '/appium/servers')
@@ -196,5 +219,7 @@ if __name__ == '__main__':
     env_path = os.getenv('PATH')
     os.putenv('PATH', env_path + ':' + '/usr/local/bin')
 
-    config_log()
+    start_opts = parse_system_argv()
+    print start_opts
+    config_log(start_opts['production'])
     app.run(host='0.0.0.0', debug=False)
