@@ -117,5 +117,7 @@ pyvenv.cfg
 pip-selfcheck.json
 
 *.log
+*.sock
+*.pid
 
 
