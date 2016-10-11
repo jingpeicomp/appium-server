@@ -76,9 +76,6 @@ class AppiumServer(Resource):
         创建一个Appium Server
         :return:
         """
-        app.logger.info("kkkkkkkk")
-        app.logger.error("eeeeeeeeeee")
-        logger.error("23333333333")
         post_data = request.get_json()
         if 'deviceIp' not in post_data:
             abort(400, message="Device ip cannot be null")
@@ -101,7 +98,7 @@ class AppiumServer(Resource):
         server_bport = server_port + 1
 
         server_command = 'appium -p {0} -bp {1} -U {2}'.format(server_port, server_bport, device_udid)
-        is_success, _ = execute_command(server_command)
+        is_success, _ = execute_command(server_command, source=True)
         if not is_success:
             logger.error('Fail to start appium server'.format(server_command))
             abort(500, message="Cannot start appium server {0}".format(device_udid))
@@ -140,7 +137,7 @@ def adb_connect():
         abort(400)
 
 
-def execute_command(cmd_string, cwd=None, timeout=180, shell=True):
+def execute_command(cmd_string, cwd=None, timeout=180, shell=True, source=False):
     """
     执行一个SHELL命令
         封装了subprocess的Popen方法, 支持超时判断，支持读取stdout和stderr
@@ -148,6 +145,7 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True):
         cwd: 运行命令时更改路径，如果被设定，子进程会直接先更改当前路径到cwd
         timeout: 超时时间，秒，支持小数，精度0.1秒
         shell: 是否通过shell运行
+        source: 是否需要source
     Returns: return_code
     """
     logger.info('Begin execute command {0}'.format(cmd_string))
@@ -155,6 +153,8 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True):
         cmd_string_list = cmd_string
     else:
         cmd_string_list = shlex.split(cmd_string)
+    if source:
+        cmd_string_list = 'source /root/.bash_profile && ' + cmd_string_list
     if timeout:
         end_time = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
 
