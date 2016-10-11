@@ -130,12 +130,16 @@ class AppiumServer(Resource):
         return 0
 
 
-@app.route('/adb/connection', methods=['post'])
-def adb_connect():
-    request_body = request.json
-    device_ip = request_body.get('deviceIp')
-    if not device_ip:
-        abort(400)
+@app.route('/appium/appfile', methods=['POST'])
+def upload_file():
+    try:
+        f = request.files['appfile']
+        file_name = '{0}_{1}'.format(time.time(), f.filename)
+        f.save('/root/appium_server/appfile/{0}'.format(file_name))
+        return flask.jsonify({'appfile': file_name})
+    except Exception as e:
+        logger.error(e)
+        abort(500, 'cannot save app file')
 
 
 def execute_command(cmd_string, cwd=None, timeout=180, shell=True, background=False):
