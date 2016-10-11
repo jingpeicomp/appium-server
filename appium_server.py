@@ -89,8 +89,8 @@ class AppiumServer(Resource):
             logger.error('Fail to create adb connection {0}'.format(device_udid))
             abort(500, message="Cannot connect the device {0} by adb, please check the phone".format(device_udid))
 
-        if self.server_cache[device_udid]:
-            return self.server_cache[device_udid]
+        if self.server_cache.get(device_udid):
+            return self.server_cache.get(device_udid)
 
         server_port = self._get_server_port()
         if not server_port:
