@@ -99,7 +99,7 @@ class AppiumServer(Resource):
 
         server_command = 'node /root/node-v4.6.0-linux-x64/lib/node_modules/appium -p {0} -bp {1} -U {2}'.format(
             server_port, server_bport, device_udid)
-        is_success, _ = execute_command(server_command)
+        is_success, _ = execute_command(server_command, background=True)
         if not is_success:
             logger.error('Fail to start appium server'.format(server_command))
             abort(500, message="Cannot start appium server {0}".format(device_udid))
@@ -138,7 +138,7 @@ def adb_connect():
         abort(400)
 
 
-def execute_command(cmd_string, cwd=None, timeout=180, shell=True, source=False):
+def execute_command(cmd_string, cwd=None, timeout=180, shell=True, background=False):
     """
     执行一个SHELL命令
         封装了subprocess的Popen方法, 支持超时判断，支持读取stdout和stderr
@@ -146,16 +146,14 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, source=False)
         cwd: 运行命令时更改路径，如果被设定，子进程会直接先更改当前路径到cwd
         timeout: 超时时间，秒，支持小数，精度0.1秒
         shell: 是否通过shell运行
-        source: 是否需要source
+        background: 是否需要后台执行
     Returns: return_code
     """
+    if background:
+        cmd_string += ' &'
     if shell:
         cmd_string_list = cmd_string
-        if source:
-            cmd_string_list = 'source /root/.bash_profile && env && alias && ' + cmd_string_list
     else:
-        if source:
-            cmd_string = 'source /root/.bash_profile && env && alias && ' + cmd_string
         cmd_string_list = shlex.split(cmd_string)
 
     logger.info('Begin execute command {0}'.format(cmd_string_list))
@@ -173,6 +171,22 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, source=False)
             if end_time <= datetime.datetime.now():
                 logger.error('The command is timeout {0}'.format(cmd_string))
                 return False, 'Timeout：%s' % cmd_string
+
+    # 如果是后台执行需要检查是否存在进程
+    if background:
+        count = 0
+        grep_cmd = ' ps -ef | grep "{0}" | grep -v grep'.format(cmd_string)
+        while count < 10:
+            time.sleep(0.1)
+            grep_sub = subprocess.Popen(grep_cmd, cwd=cwd, stdin=subprocess.PIPE, shell=shell, bufsize=4096,
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = grep_sub.readlines()
+            if result:
+                logger.info('Finish execute command with result {0}'.format(result))
+                return True, result
+
+        logger.error('Fail execute command')
+        return False, ''
 
     result = sub.stdout.readlines()
     logger.info('Finish execute command with result {0}'.format(result))
