@@ -165,15 +165,16 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, background=Fa
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # subprocess.poll()方法：检查子进程是否结束了，如果结束了，设定并返回码，放在subprocess.returncode变量中
-    while sub.poll() is None:
-        time.sleep(0.1)
-        if timeout:
-            if end_time <= datetime.datetime.now():
-                logger.error('The command is timeout {0}'.format(cmd_string))
-                return False, 'Timeout：%s' % cmd_string
+    if not background:
+        while sub.poll() is None:
+            time.sleep(0.1)
+            if timeout:
+                if end_time <= datetime.datetime.now():
+                    logger.error('The command is timeout {0}'.format(cmd_string))
+                    return False, 'Timeout：%s' % cmd_string
 
     # 如果是后台执行需要检查是否存在进程
-    if background:
+    else:
         count = 0
         grep_cmd = ' ps -ef | grep "{0}" | grep -v grep'.format(cmd_string)
         while count < 10:
