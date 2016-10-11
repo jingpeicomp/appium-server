@@ -150,7 +150,7 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, background=Fa
     Returns: return_code
     """
     if background:
-        cmd_string += ' &'
+        cmd_string = 'nohup ' + cmd_string + ' &'
     if shell:
         cmd_string_list = cmd_string
     else:
