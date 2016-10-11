@@ -106,7 +106,7 @@ class AppiumServer(Resource):
 
         self.server_cache[device_udid] = {'server_port': server_port, 'server_bport': server_port,
                                           'server_ip': ip_address}
-
+        time.sleep(5)
         return self.server_cache[device_udid]
 
     def get(self):
