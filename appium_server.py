@@ -76,6 +76,9 @@ class AppiumServer(Resource):
         创建一个Appium Server
         :return:
         """
+        app.logger.info("kkkkkkkk")
+        app.logger.error("eeeeeeeeeee")
+        logger.error("23333333333")
         post_data = request.get_json()
         if 'deviceIp' not in post_data:
             abort(400, message="Device ip cannot be null")
@@ -103,7 +106,7 @@ class AppiumServer(Resource):
             logger.error('Fail to start appium server'.format(server_command))
             abort(500, message="Cannot start appium server {0}".format(device_udid))
 
-        self.server_cache[device_udid] = {'server_port': int(server_port), 'server_bport': int(server_port),
+        self.server_cache[device_udid] = {'server_port': server_port, 'server_bport': server_port,
                                           'server_ip': ip_address}
 
         return self.server_cache[device_udid]
@@ -195,11 +198,12 @@ def config_log(production_env=False):
         base_dir = os.path.dirname(__file__)
         handler = RotatingFileHandler(os.path.join(base_dir, 'logs/app.log'), maxBytes=10000000, backupCount=1)
         handler.setLevel(logging.INFO)
-        app.logger.addHandler(handler)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
     else:
         handler = LogstashRedisHandler(level=logging.INFO, is_interface_handler=False, key='LOGSTASH_APP_LOG',
                                        host='192.168.65.224', app_module='appium_server')
-        app.logger.addHandler(handler)
+        logger.addHandler(handler)
 
 
 def parse_system_argv():
@@ -235,6 +239,6 @@ if __name__ == '__main__':
     os.putenv('PATH', env_path + ':' + '/usr/local/bin')
 
     start_opts = parse_system_argv()
-    print start_opts
     config_log(start_opts['production'])
+    print start_opts
     app.run(host='0.0.0.0', debug=False)
