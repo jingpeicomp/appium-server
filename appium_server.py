@@ -103,7 +103,10 @@ class AppiumServer(Resource):
             logger.error('Fail to start appium server'.format(server_command))
             abort(500, message="Cannot start appium server {0}".format(device_udid))
 
-        self.server_cache[device_udid] = {'server_port': server_port, 'server_bport': server_port}
+        self.server_cache[device_udid] = {'server_port': server_port, 'server_bport': server_port,
+                                          'server_ip': ip_address}
+
+        return self.server_cache[device_udid]
 
     def get(self):
         """
@@ -212,6 +215,18 @@ def parse_system_argv():
 
     return {'production': production}
 
+
+def get_ip():
+    """
+    获取本机IP地址
+    :return:
+    """
+    import socket
+    host_name = socket.getfqdn(socket.gethostname())
+    return socket.gethostbyname(host_name)
+
+
+ip_address = get_ip()
 
 api.add_resource(AppiumServer, '/appium/servers')
 
