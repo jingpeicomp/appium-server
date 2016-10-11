@@ -148,13 +148,13 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, source=False)
         source: 是否需要source
     Returns: return_code
     """
-    logger.info('Begin execute command {0}'.format(cmd_string))
     if shell:
         cmd_string_list = cmd_string
     else:
         cmd_string_list = shlex.split(cmd_string)
     if source:
         cmd_string_list = 'source /root/.bash_profile && ' + cmd_string_list
+    logger.info('Begin execute command {0}'.format(cmd_string))
     if timeout:
         end_time = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
 
