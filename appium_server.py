@@ -180,7 +180,7 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, background=Fa
             time.sleep(0.1)
             grep_sub = subprocess.Popen(grep_cmd, cwd=cwd, stdin=subprocess.PIPE, shell=shell, bufsize=4096,
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            result = grep_sub.readlines()
+            result = grep_sub.stdout.readlines()
             if result:
                 logger.info('Finish execute command with result {0}'.format(result))
                 return True, result
