@@ -153,9 +153,9 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, source=False)
         if source:
             cmd_string_list = 'source /root/.bash_profile && env && alias && ' + cmd_string_list
     else:
-        cmd_string_list = shlex.split(cmd_string)
         if source:
-            cmd_string_list = ['source /root/.bash_profile && env && alias '] + cmd_string_list
+            cmd_string = 'source /root/.bash_profile && env && alias && '+cmd_string
+        cmd_string_list = shlex.split(cmd_string)
 
     logger.info('Begin execute command {0}'.format(cmd_string_list))
     if timeout:
