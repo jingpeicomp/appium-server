@@ -134,8 +134,8 @@ class AppiumServer(Resource):
 def upload_file():
     try:
         f = request.files['appfile']
-        file_name = '{0}_{1}'.format(time.time(), f.filename)
-        f.save('/root/appium_server/appfile/{0}'.format(file_name))
+        file_name = '/root/appium_server/appfile/{0}-{1}'.format(time.time(), f.filename)
+        f.save(file_name)
         return flask.jsonify({'appfile': file_name})
     except Exception as e:
         logger.error(e)
