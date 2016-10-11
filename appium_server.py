@@ -153,7 +153,7 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, source=False)
     else:
         cmd_string_list = shlex.split(cmd_string)
     if source:
-        cmd_string_list = 'source /root/.bash_profile && ' + cmd_string_list
+        cmd_string_list = 'source /root/.bash_profile && env && alias && ' + cmd_string_list
     logger.info('Begin execute command {0}'.format(cmd_string_list))
     if timeout:
         end_time = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
