@@ -178,12 +178,13 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, background=Fa
     else:
         count = 0
         grep_cmd = 'ps -ef | grep "{0}" | grep -v grep'.format(cmd_string)
+        logger.info('********* grep_cmd {0}'.format(grep_cmd))
         while count < 10:
             time.sleep(0.1)
             grep_sub = subprocess.Popen(grep_cmd, cwd=cwd, stdin=subprocess.PIPE, shell=shell, bufsize=4096,
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             result = grep_sub.stdout.readlines()
-            logger.info("count {0}  result {1}".format(count, result))
+            logger.info('****** count {0}  result {1}'.format(count, result))
             if result:
                 logger.info('Finish execute command with result {0}'.format(result))
                 return True, result
