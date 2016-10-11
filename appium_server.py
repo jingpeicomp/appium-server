@@ -97,8 +97,9 @@ class AppiumServer(Resource):
             abort(500, message="Cannot get available appium server port".format(device_udid))
         server_bport = server_port + 1
 
-        server_command = 'appium -p {0} -bp {1} -U {2}'.format(server_port, server_bport, device_udid)
-        is_success, _ = execute_command(server_command, source=True, shell=False)
+        server_command = 'node /root/node-v4.6.0-linux-x64/lib/node_modules/appium -p {0} -bp {1} -U {2}'.format(
+            server_port, server_bport, device_udid)
+        is_success, _ = execute_command(server_command)
         if not is_success:
             logger.error('Fail to start appium server'.format(server_command))
             abort(500, message="Cannot start appium server {0}".format(device_udid))
@@ -154,7 +155,7 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, source=False)
             cmd_string_list = 'source /root/.bash_profile && env && alias && ' + cmd_string_list
     else:
         if source:
-            cmd_string = 'source /root/.bash_profile && env && alias && '+cmd_string
+            cmd_string = 'source /root/.bash_profile && env && alias && ' + cmd_string
         cmd_string_list = shlex.split(cmd_string)
 
     logger.info('Begin execute command {0}'.format(cmd_string_list))
