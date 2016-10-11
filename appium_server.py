@@ -103,7 +103,7 @@ class AppiumServer(Resource):
             logger.error('Fail to start appium server'.format(server_command))
             abort(500, message="Cannot start appium server {0}".format(device_udid))
 
-        self.server_cache[device_udid] = {'server_port': server_port, 'server_bport': server_port,
+        self.server_cache[device_udid] = {'server_port': int(server_port), 'server_bport': int(server_port),
                                           'server_ip': ip_address}
 
         return self.server_cache[device_udid]
