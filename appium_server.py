@@ -180,7 +180,7 @@ def execute_command(cmd_string, cwd=None, timeout=180, shell=True, background=Fa
     # 如果是后台执行需要检查是否存在进程
     else:
         count = 0
-        grep_cmd = 'ps -ef | grep "{0}" | grep -v grep'.format(cmd_string)
+        grep_cmd = 'ps -ef | grep "{0}" | grep -v grep'.format(cmd_string.strip(' &'))
         logger.info('********* grep_cmd {0}'.format(grep_cmd))
         while count < 10:
             time.sleep(0.1)
