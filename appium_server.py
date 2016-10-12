@@ -130,16 +130,30 @@ class AppiumServer(Resource):
         return 0
 
 
-@app.route('/appium/appfile', methods=['POST'])
+@app.route('/appium/appfile', methods=['POST', 'GET'])
 def upload_file():
-    try:
-        f = request.files['appfile']
-        file_name = '/root/appium_server/appfile/{0}-{1}'.format(time.time(), f.filename)
-        f.save(file_name)
-        return flask.jsonify({'appfile': file_name})
-    except Exception as e:
-        logger.error(e)
-        abort(500, 'cannot save app file')
+    if request.method == 'POST':
+        try:
+            f = request.files['appfile']
+            file_name = '/root/appium_server/appfile/{1}'.format(f.filename)
+            f.save(file_name)
+            return flask.jsonify({'appfile': file_name})
+        except Exception as e:
+            logger.error(e)
+            abort(500, 'cannot save app file')
+    else:
+        file_exist = False
+        appfile_path = ''
+        try:
+            origin_appfile_path = request.args['appfileName']
+            origin_appfile_name = os.path.basename(origin_appfile_path)
+            appfile_path = '/root/appium_server/appfile/{0}'.format(origin_appfile_name)
+            if os.path.exists(appfile_path) and os.path.isfile(appfile_path):
+                file_exist = True
+        except Exception as e:
+            logger.error(e)
+        finally:
+            return flask.jsonify({'exist': file_exist, 'appfile': appfile_path})
 
 
 def execute_command(cmd_string, cwd=None, timeout=180, shell=True, background=False):
