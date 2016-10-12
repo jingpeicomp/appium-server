@@ -135,7 +135,7 @@ def upload_file():
     if request.method == 'POST':
         try:
             f = request.files['appfile']
-            file_name = '/root/appium_server/appfile/{1}'.format(f.filename)
+            file_name = '/root/appium_server/appfile/{0}'.format(f.filename)
             f.save(file_name)
             return flask.jsonify({'appfile': file_name})
         except Exception as e:
