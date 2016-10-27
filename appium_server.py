@@ -31,6 +31,8 @@ class AdbConnection(object):
     def create_adb_conn(device_ip, device_port='5555'):
         """
         创建adb连接
+        :param device_ip:
+        :param device_port:
         :return:
         """
         logger.info('create_adb_conn is called {0} {1}'.format(device_ip, device_port))
@@ -39,6 +41,20 @@ class AdbConnection(object):
         command_result = ''.join(command_result).strip(' \n')
         return is_success and (
             command_result.startswith('already connected to') or command_result.startswith('connected to'))
+
+    @staticmethod
+    def delete_adb_conn(device_ip, device_port='5555'):
+        """
+        删除adb连接
+        :param device_ip:
+        :param device_port:
+        :return:
+        """
+        logger.info('delete_adb_conn is called {0} {1}'.format(device_ip, device_port))
+        adb_disconnect_command = 'adb disconnect {0}:{1}'.format(device_ip, device_port)
+        execute_command(adb_disconnect_command)
+
+        return True
 
     @staticmethod
     def get_all_conn(ip=None):
@@ -116,13 +132,35 @@ class AppiumServer(Resource):
         """
         return self.server_cache
 
+    def delete(self):
+        """
+        删除appium server连接
+        :return:
+        """
+        delete_data = request.args
+        if 'deviceIp' not in delete_data:
+            abort(400, message="Device ip cannot be null")
+
+        device_ip = delete_data.get('deviceIp')
+        device_port = delete_data.get('devicePort') or '5555'
+        device_udid = '{0}:{1}'.format(device_ip, device_port)
+
+        AdbConnection.delete_adb_conn(device_ip, device_port)
+        if self.server_cache.get(device_udid):
+            del self.server_cache[device_udid]
+
+        kill_cmd = "ps -ef | grep \'" + device_udid + "\'| grep -v grep | awk '{system(\"kill -9 \"$2)}'"
+        execute_command(kill_cmd)
+
+        return {}
+
     def _get_server_port(self):
         """
         获取可用的APPIUM server端口
         :return:
         """
         used_ports = map(lambda item: item['server_port'], self.server_cache.itervalues())
-        for cur_port in xrange(25000, 26000, 2):
+        for cur_port in xrange(25000, 26000, 4):
             if cur_port not in used_ports:
                 return cur_port
 
