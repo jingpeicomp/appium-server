@@ -308,8 +308,10 @@ def get_ip():
     :return:
     """
     import socket
-    host_name = socket.getfqdn(socket.gethostname())
-    return socket.gethostbyname(host_name)
+    import fcntl
+    import struct
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s', 'eth0'))[20:24])
 
 
 ip_address = get_ip()
