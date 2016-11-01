@@ -138,6 +138,7 @@ class AppiumServer(Resource):
         :return:
         """
         delete_data = request.args
+        logger.info('delete appium server is called {0}'.format(delete_data))
         if 'deviceIp' not in delete_data:
             abort(400, message="Device ip cannot be null")
 
@@ -146,7 +147,8 @@ class AppiumServer(Resource):
         device_udid = '{0}:{1}'.format(device_ip, device_port)
 
         AdbConnection.delete_adb_conn(device_ip, device_port)
-        if self.server_cache.get(device_udid):
+        if device_udid in self.server_cache:
+            logger.info('delete appium server cache {0}'.format(device_udid))
             del self.server_cache[device_udid]
 
         kill_cmd = "ps -ef | grep \'" + device_udid + "\'| grep -v grep | awk '{system(\"kill -9 \"$2)}'"
