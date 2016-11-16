@@ -115,6 +115,7 @@ class AppiumServer(Resource):
 
         server_command = 'node /root/node-v4.6.0-linux-x64/lib/node_modules/appium -p {0} -bp {1} -U {2}'.format(
             server_port, server_bport, device_udid)
+        # server_command = 'appium -p {0} -bp {1} -U {2}'.format(server_port, server_bport, device_udid)
         is_success, _ = execute_command(server_command, background=True)
         if not is_success:
             logger.error('Fail to start appium server'.format(server_command))
@@ -176,6 +177,7 @@ def upload_file():
         try:
             f = request.files['appfile']
             file_name = '/root/appium_server/appfile/{0}'.format(f.filename)
+            # file_name = '/Users/liuzhaoming/temp/4/appfile/{0}'.format(f.filename)
             f.save(file_name)
             return flask.jsonify({'appfile': file_name})
         except Exception as e:
@@ -188,8 +190,10 @@ def upload_file():
             origin_appfile_path = request.args['appfileName']
             origin_appfile_name = os.path.basename(origin_appfile_path)
             appfile_path = '/root/appium_server/appfile/{0}'.format(origin_appfile_name)
+            # appfile_path = '/Users/liuzhaoming/temp/4/appfile/{0}'.format(origin_appfile_name)
             if os.path.exists(appfile_path) and os.path.isfile(appfile_path):
-                file_exist = True
+                os.remove(appfile_path)
+                file_exist = False
         except Exception as e:
             logger.error(e)
         finally:
@@ -312,6 +316,8 @@ def get_ip():
     import socket
     import fcntl
     import struct
+
+    # return '172.19.3.10'
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     return socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s', 'eth0'))[20:24])
 
