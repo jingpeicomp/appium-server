@@ -34,5 +34,5 @@ pytz==2016.7
 redis==2.10.5
 simplejson==3.8.2
 six==1.10.0
-supervisor==3.3.1
+supervisor==3.3.3
 Werkzeug==0.11.11
