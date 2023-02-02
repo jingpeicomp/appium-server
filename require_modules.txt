@@ -15,7 +15,7 @@ pytz==2016.7
 redis==2.10.5
 simplejson==3.8.2
 six==1.10.0
-Werkzeug==0.11.11
+Werkzeug==0.15.5
 aniso8601==1.1.0
 bunch==1.0.1
 click==6.6
@@ -35,4 +35,4 @@ redis==2.10.5
 simplejson==3.8.2
 six==1.10.0
 supervisor==3.3.1
-Werkzeug==0.11.11
+Werkzeug==0.15.5
